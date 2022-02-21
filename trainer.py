@@ -22,7 +22,7 @@ def save_model(epoch, model_name, model):
 
 def train(args, model, optimizer, scheduler=None, model_name='model'):
     # TODO: Q1.5 Initialize your visualizer here!
-    writer = SummaryWriter()
+    writer = SummaryWriter('./')
     # TODO: Q1.2 complete your dataloader in voc_dataset.py
     train_loader = utils.get_data_loader('voc', train=True, batch_size=args.batch_size, split='trainval')
     test_loader = utils.get_data_loader('voc', train=False, batch_size=args.test_batch_size, split='test')
@@ -72,7 +72,9 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             
         if save_this_epoch(args, epoch):
             save_model(epoch, model_name, model)
-    
+
+        print('finish a epoch')
+
     if args.save_at_end:
         save_model(args.epochs, model_name, model)
     

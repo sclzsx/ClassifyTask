@@ -21,7 +21,7 @@ class VOCDataset(Dataset):
         INV_CLASS[CLASS_NAMES[i]] = i
 
     # TODO Q1.2: Adjust data_dir according to where **you** stored the data
-    def __init__(self, split, size, data_dir='VOCdevkit/VOC2007/'):
+    def __init__(self, split, size, data_dir='data/VOCdevkit/VOC2007/'):
         super().__init__()
         self.split = split
         self.data_dir = data_dir
@@ -57,6 +57,17 @@ class VOCDataset(Dataset):
             tree = ET.parse(fpath)
             # TODO Q1.2: insert your code here, preload labels
 
+            class_ = [0 for _ in range(20)]
+            weight_ = [1 for _ in range(20)]
+            xml_root = tree.getroot()
+            for obj in xml_root.findall('object'):
+                class_name = obj.find('name').text
+                class_idx = self.get_class_index(class_name)
+                class_[class_idx] = 1
+            label = [class_, weight_]
+            label_list.append(label)
+        label_list = np.array(label_list)
+
         return label_list
 
     def __getitem__(self, index):
@@ -70,6 +81,12 @@ class VOCDataset(Dataset):
         findex = self.index_list[index]
         fpath = os.path.join(self.img_dir, findex + '.jpg')
         # TODO Q1.2: insert your code here. hint: read image, find the labels and weight.
+
+        img = Image.open(fpath)
+        img = img.resize((self.size, self.size))
+        img = np.array(img).transpose((2, 0, 1))
+        lab_vec = self.anno_list[index][0]
+        wgt_vec = self.anno_list[index][1]
 
         image = torch.FloatTensor(img)
         label = torch.FloatTensor(lab_vec)

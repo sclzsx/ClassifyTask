@@ -28,7 +28,7 @@ class ARGS(object):
     # input batch size for training 
     batch_size = 64
     # input batch size for testing
-    test_batch_size=1000
+    test_batch_size = 64
     # number of epochs to train for
     epochs = 14
     # learning rate
@@ -43,9 +43,9 @@ class ARGS(object):
     # set flag to True if you wish to save the model after training
     save_at_end = False
     # set this to value >0 if you wish to save every x epochs
-    save_freq=-1
+    save_freq = 1
     # set true if using GPU during training
-    use_cuda = False
+    use_cuda = True
     # input size
     inp_size = 224
 
@@ -78,7 +78,7 @@ def get_data_loader(name='voc', train=True, batch_size=64, split='train', inp_si
         dataset,
         batch_size=batch_size,
         shuffle=train,
-        num_workers=4,
+        num_workers=0,
     )
     return loader
 
@@ -104,6 +104,7 @@ def compute_ap(gt, pred, valid, average=None):
         # As per PhilK. code:
         # https://github.com/philkr/voc-classification/blob/master/src/train_cls.py
         pred_cls -= 1e-5 * gt_cls
+        # print(gt_cls)
         ap = sklearn.metrics.average_precision_score(
             gt_cls, pred_cls, average=average)
         AP.append(ap)
@@ -121,11 +122,22 @@ def eval_dataset_map(model, device, test_loader):
          MAP (float): mean average precision
     """
     with torch.no_grad():
+        APs = []
         for data, target, wgt in test_loader:
             # TODO Q1.3: insert your code here
-            gt, pred, valid = None, None, None
-            pass
-    AP = compute_ap(gt, pred, valid)
 
+            data = data.to(device)
+            pred = model(data)
+            gt = np.array(target)
+            pred = np.array(pred.cpu())
+            valid = np.ones_like(gt)
+            AP = compute_ap(gt, pred, valid)
+            print('ss', np.mean(np.array(AP)))
+            APs.append(AP)
+
+    APs = np.array(APs)
+    AP = np.average(APs, axis=0)
     mAP = np.mean(AP)
+    AP = AP.tolist()
+    print(mAP)
     return AP, mAP
