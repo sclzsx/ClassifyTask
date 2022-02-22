@@ -104,7 +104,6 @@ def compute_ap(gt, pred, valid, average=None):
         # As per PhilK. code:
         # https://github.com/philkr/voc-classification/blob/master/src/train_cls.py
         pred_cls -= 1e-5 * gt_cls
-        # print(gt_cls)
         ap = sklearn.metrics.average_precision_score(
             gt_cls, pred_cls, average=average)
         AP.append(ap)
@@ -122,22 +121,47 @@ def eval_dataset_map(model, device, test_loader):
          MAP (float): mean average precision
     """
     with torch.no_grad():
-        APs = []
+
+        gt, pred = [], []
+        # t = []
         for data, target, wgt in test_loader:
             # TODO Q1.3: insert your code here
 
-            data = data.to(device)
-            pred = model(data)
-            gt = np.array(target)
-            pred = np.array(pred.cpu())
-            valid = np.ones_like(gt)
-            AP = compute_ap(gt, pred, valid)
-            print('ss', np.mean(np.array(AP)))
-            APs.append(AP)
+            # gt, pred, valid = None, None, None
+            # pass
 
-    APs = np.array(APs)
-    AP = np.average(APs, axis=0)
+            gt_batch = np.array(target)
+            pred_batch = np.array(model(data.to(device)).cpu())
+
+            # t.append(gt_batch[0])
+
+            gt_batch = gt_batch.reshape(1, -1).squeeze(0)
+            pred_batch = pred_batch.reshape(1, -1).squeeze(0)
+
+            gt_batch = gt_batch.tolist()
+            pred_batch = pred_batch.tolist()
+
+            gt.extend(gt_batch)
+            pred.extend(pred_batch)
+
+        gt = np.array(gt)
+        pred = np.array(pred)
+
+        gt = gt.reshape(-1, 20)
+        pred = pred.reshape(-1, 20)
+
+    valid = np.ones_like(gt)
+
+    # c = 0
+    # for i in range(gt.shape[0]):
+    #     if i%64 == 0:
+    #         print(gt[i])
+    #         print(t[c])
+    #         c = c+1
+    #         print()
+
+    AP = compute_ap(gt, pred, valid)
+
     mAP = np.mean(AP)
-    AP = AP.tolist()
-    print(mAP)
+
     return AP, mAP

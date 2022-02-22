@@ -84,11 +84,15 @@ class VOCDataset(Dataset):
 
         img = Image.open(fpath)
         img = img.resize((self.size, self.size))
-        img = np.array(img).transpose((2, 0, 1))
+        img = np.array(img).transpose((2, 0, 1)).astype('float32')
+        img = img / 255.0
         lab_vec = self.anno_list[index][0]
         wgt_vec = self.anno_list[index][1]
 
         image = torch.FloatTensor(img)
         label = torch.FloatTensor(lab_vec)
         wgt = torch.FloatTensor(wgt_vec)
+
+        if 1 not in label:
+            print('all zeros')
         return image, label, wgt
