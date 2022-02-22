@@ -1,4 +1,3 @@
-
 import os
 import torch
 import numpy as np
@@ -30,18 +29,18 @@ class ARGS(object):
     # input batch size for testing
     test_batch_size = 64
     # number of epochs to train for
-    epochs = 14
+    epochs = 10
     # learning rate
-    lr = 1.0
+    lr = 0.001
     # Learning rate step gamma
     gamma = 0.7
-    step_size = 1
+    step_size = 2
     # how many batches to wait before logging training status
     log_every = 100
     # how many batches to wait before evaluating model
     val_every = 100
     # set flag to True if you wish to save the model after training
-    save_at_end = False
+    save_at_end = True
     # set this to value >0 if you wish to save every x epochs
     save_freq = 1
     # set true if using GPU during training
@@ -49,19 +48,21 @@ class ARGS(object):
     # input size
     inp_size = 224
 
+    class_num = 20
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             assert '__' not in k and hasattr(self, k), "invalid attribute!"
             assert k != 'device', "device property cannot be modified"
             setattr(self, k, v)
-        
+
     def __repr__(self):
         repr_str = ''
         for attr in dir(self):
-            if '__' not in attr and attr !='use_cuda':
+            if '__' not in attr and attr != 'use_cuda':
                 repr_str += 'args.{} = {}\n'.format(attr, getattr(self, attr))
         return repr_str
-    
+
     @property
     def device(self):
         return torch.device("cuda" if self.use_cuda else "cpu")
@@ -121,7 +122,6 @@ def eval_dataset_map(model, device, test_loader):
          MAP (float): mean average precision
     """
     with torch.no_grad():
-
         gt, pred = [], []
         # t = []
         for data, target, wgt in test_loader:

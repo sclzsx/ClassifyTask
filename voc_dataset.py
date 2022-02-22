@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 
 import imageio
@@ -21,7 +20,7 @@ class VOCDataset(Dataset):
         INV_CLASS[CLASS_NAMES[i]] = i
 
     # TODO Q1.2: Adjust data_dir according to where **you** stored the data
-    def __init__(self, split, size, data_dir='data/VOCdevkit/VOC2007/'):
+    def __init__(self, split, size, data_dir='data/VOCdevkit/VOC2007_mixup/'):
         super().__init__()
         self.split = split
         self.data_dir = data_dir
@@ -83,7 +82,8 @@ class VOCDataset(Dataset):
         # TODO Q1.2: insert your code here. hint: read image, find the labels and weight.
 
         img = Image.open(fpath)
-        img = img.resize((self.size, self.size))
+        if self.size > 0:
+            img = img.resize((self.size, self.size))
         img = np.array(img).transpose((2, 0, 1)).astype('float32')
         img = img / 255.0
         lab_vec = self.anno_list[index][0]

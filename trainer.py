@@ -73,8 +73,6 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
         if save_this_epoch(args, epoch):
             save_model(epoch, model_name, model)
 
-        print('finish a epoch')
-
     if args.save_at_end:
         save_model(args.epochs, model_name, model)
     

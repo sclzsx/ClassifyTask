@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -29,6 +28,7 @@ class SimpleCNN(nn.Module):
     """
     Model definition
     """
+
     def __init__(self, num_classes=10, inp_size=28, c_dim=1):
         super().__init__()
         self.num_classes = num_classes
